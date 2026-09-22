@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Personas - Matrimillas - Sprint 0</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: #f0f2f5;
+            color: #2c3e50;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px 20px;
+        }
+        h1 { text-align: center; font-size: 2rem; margin-bottom: 6px; color: #1a1a2e; }
+        .subtitle { text-align: center; font-size: 0.95rem; color: #666; margin-bottom: 24px; }
+
+        .carousel-wrapper {
+            position: relative;
+            max-width: 960px;
+            width: 100%;
+        }
+        .carousel-track {
+            overflow: hidden;
+            border-radius: 16px;
+            box-shadow: 0 6px 30px rgba(0,0,0,0.1);
+        }
+
+        /* Persona card */
+        .persona-card {
+            display: none;
+            min-height: 540px;
+        }
+        .persona-card.active { display: grid; }
+        .persona-card {
+            grid-template-columns: 300px 1fr;
+            grid-template-rows: auto;
+        }
+
+        /* Left panel */
+        .left-panel {
+            background: #b4e0fa;
+            padding: 36px 28px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            gap: 16px;
+        }
+
+        .avatar {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: #fff;
+            border: 4px solid #fff;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 5rem;
+            overflow: hidden;
+        }
+
+        .left-panel .name {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .left-panel .role {
+            font-size: 0.95rem;
+            color: #333;
+        }
+
+        .left-panel .quote {
+            font-style: italic;
+            font-size: 0.9rem;
+            color: #1a1a2e;
+            line-height: 1.5;
+            margin-top: 8px;
+            max-width: 240px;
+        }
+
+        .left-panel .counter-badge {
+            background: rgba(0,0,0,0.1);
+            padding: 4px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #333;
+            margin-top: 8px;
+        }
+
+        /* Right panel */
+        .right-panel {
+            background: #fff;
+            padding: 30px 32px;
+            display: flex;
+            flex-direction: column;
+            gap: 22px;
+        }
+
+        .section-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            color: #1a1a2e;
+            margin-bottom: 6px;
+        }
+
+        .bio-text {
+            font-size: 0.88rem;
+            line-height: 1.6;
+            color: #444;
+        }
+
+        .info-row {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .info-tag {
+            background: #f1f5f9;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            color: #475569;
+            white-space: nowrap;
+        }
+
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .col-section ul {
+            list-style: none;
+            font-size: 0.84rem;
+            line-height: 1.6;
+        }
+
+        .col-section ul li {
+            padding: 3px 0 3px 16px;
+            position: relative;
+        }
+
+        .col-section ul li::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 11px;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        .goals-section .section-title { color: #16a34a; }
+        .goals-section ul li::before { background: #22c55e; }
+
+        .frustrations-section .section-title { color: #dc2626; }
+        .frustrations-section ul li::before { background: #ef4444; }
+
+        /* Scenario */
+        .scenario {
+            background: #f8fafc;
+            border-left: 3px solid #6366f1;
+            padding: 12px 16px;
+            border-radius: 0 8px 8px 0;
+        }
+        .scenario .section-title { color: #4338ca; font-size: 0.95rem; }
+        .scenario p { font-size: 0.82rem; line-height: 1.55; color: #555; margin-top: 4px; }
+
+        /* Navigation */
+        .nav-arrows {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .nav-btn {
+            width: 48px; height: 48px;
+            border-radius: 50%;
+            border: 2px solid #1a1a2e;
+            background: #fff;
+            color: #1a1a2e;
+            font-size: 1.3rem;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s;
+            user-select: none;
+        }
+        .nav-btn:hover { background: #1a1a2e; color: #fff; }
+        .nav-btn:active { transform: scale(0.93); }
+
+        .dots { display: flex; gap: 8px; align-items: center; }
+        .dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            background: #ccc;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .dot.active { background: #1a1a2e; transform: scale(1.3); }
+
+        .keyboard-hint {
+            text-align: center;
+            margin-top: 10px;
+            font-size: 0.75rem;
+            color: #aaa;
+        }
+
+        @media (max-width: 700px) {
+            .persona-card.active { display: flex; flex-direction: column; }
+            .left-panel { padding: 24px 20px; }
+            .avatar { width: 120px; height: 120px; font-size: 3.5rem; }
+            .right-panel { padding: 20px; }
+            .two-col { grid-template-columns: 1fr; }
+        }
+        @media print {
+            .persona-card { display: grid !important; page-break-inside: avoid; margin-bottom: 20px; }
+            .nav-arrows, .keyboard-hint { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<h1>User Personas</h1>
+<p class="subtitle">Matrimillas: Economia de puntos entre personas &mdash; Sprint 0</p>
+
+<div class="carousel-wrapper">
+    <div class="carousel-track">
+
+        <!-- Persona 1: Martina -->
+        <div class="persona-card active" data-index="0">
+            <div class="left-panel">
+                <div class="avatar">&#128105;</div>
+                <div class="name">Martina</div>
+                <div class="role">Estudiante universitaria, 24 a&ntilde;os</div>
+                <div class="quote">"No tenemos una forma objetiva de saber quien hace mas."</div>
+                <div class="counter-badge">1 / 9</div>
+            </div>
+            <div class="right-panel">
+                <div>
+                    <div class="section-title">Bio</div>
+                    <p class="bio-text">Martina vive con su pareja y se reparten las tareas segun lo que aparece, sin lista fija. Ella suele cocinar y ordenar; su pareja lava los platos y saca la basura. Las tareas no diarias generan mas conflicto porque nadie recuerda cuando se hicieron. Han discutido varias veces por sentir que uno hace mas que el otro.</p>
+                </div>
+                <div class="info-row">
+                    <span class="info-tag">&#128107; Convive en pareja hace 1 a&ntilde;o</span>
+                    <span class="info-tag">&#128241; WhatsApp, Instagram, apps basicas</span>
+                </div>
+                <div class="two-col">
+                    <div class="col-section goals-section">
+                        <div class="section-title">Objetivos</div>
+                        <ul>
+                            <li>Medir la contribucion de cada uno objetivamente</li>
+                            <li>Sistema simple que no agregue carga</li>
+                            <li>Visualizar el esfuerzo real, no solo tareas "visibles"</li>
+                            <li>Reducir discusiones por tareas domesticas</li>
+                        </ul>
+                    </div>
+                    <div class="col-section frustrations-section">
+                        <div class="section-title">Frustraciones</div>
+                        <ul>
+                            <li>No hay registro de lo que hace cada uno</li>
+                            <li>Las tareas no diarias se postergan y generan conflicto</li>
+                            <li>Subir evidencia para tareas chicas seria molesto</li>
+                            <li>Un sistema competitivo podria da&ntilde;ar la relacion</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="scenario">
+                    <div class="section-title">Escenario de uso</div>
+                    <p>Martina limpia el ba&ntilde;o un sabado. Abre Matrimillas, selecciona "limpieza profunda de ba&ntilde;o" y la registra sin foto (tarea de bajo valor sin evidencia obligatoria). Su pareja recibe la notificacion y la aprueba. Al final de la semana, ambos ven quien contribuyo mas sin discutir de memoria.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Persona 2: Lucas -->
+        <div class="persona-card" data-index="1">
+            <div class="left-panel">
+                <div class="avatar">&#128104;</div>
+                <div class="name">Lucas</div>
+                <div class="role">Trabaja full-time, 27 a&ntilde;os</div>
+                <div class="quote">"No deberia valer lo mismo sacar la basura que limpiar todo el departamento."</div>
+                <div class="counter-badge">2 / 9</div>
+            </div>
+            <div class="right-panel">
+                <div>
+                    <div class="section-title">Bio</div>
+                    <p class="bio-text">Lucas vive con tres amigos. No tienen organizacion estricta: "el que ve algo, lo hace". El problema es que los mas ordenados terminan cargando con todo. Intentaron una lista por WhatsApp que dejaron de actualizar. Las tareas que nadie quiere quedan sin hacer. A veces hacen chistes sobre quien trabaja mas, pero tambien han tenido discusiones reales.</p>
+                </div>
+                <div class="info-row">
+                    <span class="info-tag">&#127968; Comparte depto con 3 amigos</span>
+                    <span class="info-tag">&#128241; Heavy user, muchas apps</span>
+                </div>
+                <div class="two-col">
+                    <div class="col-section goals-section">
+                        <div class="section-title">Objetivos</div>
+                        <ul>
+                            <li>Tareas con valor diferenciado segun esfuerzo</li>
+                            <li>Poder crear tareas personalizadas del depto</li>
+                            <li>Ver rapidamente quien hizo que</li>
+                            <li>Un ranking que motive, aunque sea "en joda"</li>
+                        </ul>
+                    </div>
+                    <div class="col-section frustrations-section">
+                        <div class="section-title">Frustraciones</div>
+                        <ul>
+                            <li>Los mas ordenados hacen mas y no se reconoce</li>
+                            <li>La lista de WhatsApp no funciono</li>
+                            <li>No todas las tareas tienen el mismo esfuerzo</li>
+                            <li>Falta de consecuencias cuando alguien no colabora</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="scenario">
+                    <div class="section-title">Escenario de uso</div>
+                    <p>Lucas crea una accion custom "limpieza general del depto" que vale mas que "sacar basura". La registra con una foto rapida. Un compa&ntilde;ero la aprueba. El viernes revisan el ranking y el que esta ultimo paga la pizza. La app es rapida: registrar toma 10 segundos.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Persona 3: Sofia -->
+        <div class="persona-card" data-index="2">
+            <div class="left-panel">
+                <div class="avatar">&#128105;&#8205;&#128103;</div>
+                <div class="name">Sofia</div>
+                <div class="role">Trabaja con horarios variables, 32 a&ntilde;os</div>
+                <div class="quote">"Hay tareas que nadie considera como tareas, como organizar y coordinar."</div>
+                <div class="counter-badge">3 / 9</div>
+            </div>
+            <div class="right-panel">
+                <div>
+                    <div class="section-title">Bio</div>
+                    <p class="bio-text">Sofia y su pareja intentan repartir tareas, pero los horarios laborales hacen que la distribucion sea despareja. Su principal dolor es que muchas tareas son "invisibles": hacer compras online, coordinar turnos medicos, organizar la logistica familiar. Esas actividades consumen tiempo real pero no figuran en ningun registro.</p>
+                </div>
+                <div class="info-row">
+                    <span class="info-tag">&#128104;&#8205;&#128105;&#8205;&#128103; Vive con pareja e hija de 6</span>
+                    <span class="info-tag">&#128197; Usa calendario digital y apps basicas</span>
+                </div>
+                <div class="two-col">
+                    <div class="col-section goals-section">
+                        <div class="section-title">Objetivos</div>
+                        <ul>
+                            <li>Que tareas de organizacion/coordinacion cuenten</li>
+                            <li>Modificar el valor segun la situacion</li>
+                            <li>Registro rapidisimo, sin trabajo extra</li>
+                            <li>Evidencia configurable: obligatoria para unas, opcional para otras</li>
+                        </ul>
+                    </div>
+                    <div class="col-section frustrations-section">
+                        <div class="section-title">Frustraciones</div>
+                        <ul>
+                            <li>Las "tareas invisibles" no se perciben como trabajo</li>
+                            <li>Una tarea puede ser mas complicada segun contexto</li>
+                            <li>Si registrar toma mucho tiempo, deja de usarlo</li>
+                            <li>No usan ningun sistema actualmente</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="scenario">
+                    <div class="section-title">Escenario de uso</div>
+                    <p>Sofia organiza una compra grande del super online, comparando precios y coordinando la entrega. Registra "compra del super (grande)" con valor mayor que una compra chica. Su pareja lo aprueba sin necesidad de foto. Los puntos reflejan el esfuerzo real.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Persona 4: Nicolas -->
+        <div class="persona-card" data-index="3">
+            <div class="left-panel">
+                <div class="avatar">&#128102;</div>
+                <div class="name">Nicolas</div>
+                <div class="role">Estudiante / part-time, 23 a&ntilde;os</div>
+                <div class="quote">"Si no quiero limpiar el ba&ntilde;o, deberia poder compensarlo haciendo otra cosa."</div>
+                <div class="counter-badge">4 / 9</div>
+            </div>
+            <div class="right-panel">
+                <div>
+                    <div class="section-title">Bio</div>
+                    <p class="bio-text">Nicolas vive con dos amigos. Generalmente el que se da cuenta primero hace las tareas. Intentaron un cronograma semanal pero era demasiado rigido. Prefiere un sistema flexible donde pueda acumular puntos haciendo lo que quiera, sin asignaciones fijas. Le interesa poder intercambiar tareas y "canjear" puntos por beneficios.</p>
+                </div>
+                <div class="info-row">
+                    <span class="info-tag">&#127968; Comparte depto con 2 amigos</span>
+                    <span class="info-tag">&#127918; Heavy user, gamer</span>
+                </div>
+                <div class="two-col">
+                    <div class="col-section goals-section">
+                        <div class="section-title">Objetivos</div>
+                        <ul>
+                            <li>Sistema flexible, sin asignaciones rigidas</li>
+                            <li>Compensar tareas evitadas con otras</li>
+                            <li>Ver su saldo respecto del resto</li>
+                            <li>Canjear puntos por beneficios</li>
+                        </ul>
+                    </div>
+                    <div class="col-section frustrations-section">
+                        <div class="section-title">Frustraciones</div>
+                        <ul>
+                            <li>Cronogramas fijos son rigidos y se rompen</li>
+                            <li>"El que se da cuenta primero" siempre es el mismo</li>
+                            <li>No hay forma de "compensar" una tarea evitada</li>
+                            <li>Falta visibilidad de quien aporta mas</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="scenario">
+                    <div class="section-title">Escenario de uso</div>
+                    <p>Nicolas no quiere limpiar el ba&ntilde;o esta semana. En vez de eso, cocina tres veces y hace las compras. Acumula suficientes puntos para estar bien en el ranking. Nadie tuvo que pelear: cada uno eligio y los numeros reflejan el equilibrio.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Persona 5: Tomas -->
+        <div class="persona-card" data-index="4">
+            <div class="left-panel" style="background: #c4e8b0;">
+                <div class="avatar">&#127918;</div>
+                <div class="name">Tomas</div>
+                <div class="role">Estudiante secundario, 16 a&ntilde;os</div>
+                <div class="quote">"Siempre me toca lo peor a mi. Mi hermana hace su cama y ya esta."</div>
+                <div class="counter-badge">5 / 9</div>
+            </div>
+            <div class="right-panel">
+                <div>
+                    <div class="section-title">Bio</div>
+                    <p class="bio-text">Tomas siente que por ser el mayor, le asignan las tareas mas pesadas. No tiene forma de demostrar que hace mas que su hermana. Le encantaria un sistema tipo juego donde acumular puntos y canjearlos por beneficios reales (elegir la comida, tiempo de Play, salir el sabado).</p>
+                </div>
+                <div class="info-row">
+                    <span class="info-tag">&#128104;&#8205;&#128105;&#8205;&#128103; Vive con padres y hermana de 13</span>
+                    <span class="info-tag">&#128241; Celular 24/7, gamer, redes sociales</span>
+                </div>
+                <div class="two-col">
+                    <div class="col-section goals-section">
+                        <div class="section-title">Objetivos</div>
+                        <ul>
+                            <li>Que sea visible que el hace mas que su hermana</li>
+                            <li>Ganar puntos y canjearlos por beneficios tangibles</li>
+                            <li>Que la app sea como un juego</li>
+                            <li>Sacar fotos como "prueba" divertida</li>
+                        </ul>
+                    </div>
+                    <div class="col-section frustrations-section">
+                        <div class="section-title">Frustraciones</div>
+                        <ul>
+                            <li>Le toca lo mas pesado "por ser el mas grande"</li>
+                            <li>Castigos (sin WiFi) lo desmotivan</li>
+                            <li>No tiene datos para demostrar que contribuye mas</li>
+                            <li>Todas las tareas "valen igual" para los padres</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="scenario">
+                    <div class="section-title">Escenario de uso</div>
+                    <p>Tomas saca la basura, limpia su cuarto y lava los platos. Registra todo con fotos rapidas (le divierte). Acumula 15 puntos. Su hermana hizo su cama (2 puntos). El sabado, Tomas quiere salir (20 puntos) y tiene saldo. El ranking familiar habla por si solo.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Persona 6: Roberto -->
+        <div class="persona-card" data-index="5">
+            <div class="left-panel" style="background: #f0d9a8;">
+                <div class="avatar">&#128104;&#8205;&#129457;</div>
+                <div class="name">Roberto</div>
+                <div class="role">Empleado administrativo, 55 a&ntilde;os</div>
+                <div class="quote">"Me contestan que aportan plata. Como si eso reemplazara limpiar."</div>
+                <div class="counter-badge">6 / 9</div>
+            </div>
+            <div class="right-panel">
+                <div>
+                    <div class="section-title">Bio</div>
+                    <p class="bio-text">Roberto y su esposa hacen casi todo en la casa. Sus hijos adultos trabajan y "no tienen tiempo". Cuando les reclama, le dicen que aportan economicamente. Un acuerdo familiar formal duro un mes. Necesita una herramienta que posicione a todos como iguales, no como control parental.</p>
+                </div>
+                <div class="info-row">
+                    <span class="info-tag">&#128104;&#8205;&#128105;&#8205;&#128102;&#8205;&#128102; Vive con esposa y 2 hijos adultos</span>
+                    <span class="info-tag">&#128241; WhatsApp, email, uso basico</span>
+                </div>
+                <div class="two-col">
+                    <div class="col-section goals-section">
+                        <div class="section-title">Objetivos</div>
+                        <ul>
+                            <li>Que los hijos vean datos objetivos de distribucion</li>
+                            <li>Herramienta "entre iguales", no control paternal</li>
+                            <li>Diferenciar tareas por esfuerzo real</li>
+                            <li>Estadisticas como herramienta de dialogo</li>
+                        </ul>
+                    </div>
+                    <div class="col-section frustrations-section">
+                        <div class="section-title">Frustraciones</div>
+                        <ul>
+                            <li>"Ya lo hago despues" y despues nunca se hace</li>
+                            <li>Los hijos sienten que aportar plata los exime</li>
+                            <li>No puede obligarlos como cuando eran chicos</li>
+                            <li>Los acuerdos verbales no perduran</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="scenario">
+                    <div class="section-title">Escenario de uso</div>
+                    <p>Roberto configura el grupo familiar. Cocinar para 4 vale 8 puntos; ir al super, 6. Al final de la semana, el resumen muestra que Roberto y su esposa tienen 40 puntos y los hijos 5. No necesita reclamar: los numeros hablan solos.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Persona 7: Camila -->
+        <div class="persona-card" data-index="6">
+            <div class="left-panel" style="background: #d5c6f0;">
+                <div class="avatar">&#128105;&#8205;&#128187;</div>
+                <div class="name">Camila</div>
+                <div class="role">Dise&ntilde;adora freelance, 29 a&ntilde;os</div>
+                <div class="quote">"Es incomodo pedirle a alguien con quien no sos tan intimo que limpie."</div>
+                <div class="counter-badge">7 / 9</div>
+            </div>
+            <div class="right-panel">
+                <div>
+                    <div class="section-title">Bio</div>
+                    <p class="bio-text">Camila comparte un espacio de trabajo con 4 personas. Siempre son las mismas dos las que se ocupan de limpiar la cocina, reponer insumos y mantener el orden. Como la relacion es profesional y no intima, reclamar es aun mas incomodo. Quiere una app que hable por ella.</p>
+                </div>
+                <div class="info-row">
+                    <span class="info-tag">&#128188; Oficina/coworking con 4 colegas</span>
+                    <span class="info-tag">&#128187; Muy tech-savvy, herramientas de productividad</span>
+                </div>
+                <div class="two-col">
+                    <div class="col-section goals-section">
+                        <div class="section-title">Objetivos</div>
+                        <ul>
+                            <li>Eliminar la incomodidad de pedirle tareas a colegas</li>
+                            <li>Vincular puntos con division de gastos</li>
+                            <li>Resumen mensual automatico para reuniones</li>
+                            <li>Registrar tareas de organizacion, no solo fisicas</li>
+                        </ul>
+                    </div>
+                    <div class="col-section frustrations-section">
+                        <div class="section-title">Frustraciones</div>
+                        <ul>
+                            <li>Incomodidad social de reclamar a gente no cercana</li>
+                            <li>El WhatsApp se convirtio en chat de memes</li>
+                            <li>Las tareas de gestion no se "ven"</li>
+                            <li>No hay consecuencias cuando alguien no colabora</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="scenario">
+                    <div class="section-title">Escenario de uso</div>
+                    <p>Camila repone cafe e insumos, lo registra. Al final del mes, el resumen muestra que dos personas hicieron el 80% de las tareas. En la reunion de gastos, se ajusta: los que menos aportaron en tareas pagan un poco mas de expensas. Todo transparente.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Persona 8: Marta -->
+        <div class="persona-card" data-index="7">
+            <div class="left-panel" style="background: #f5c6c6;">
+                <div class="avatar">&#128117;</div>
+                <div class="name">Marta</div>
+                <div class="role">Jubilada, 68 a&ntilde;os</div>
+                <div class="quote">"Cuidar a los nietos toda la tarde no aparece en ninguna lista, pero me lleva todo el dia."</div>
+                <div class="counter-badge">8 / 9</div>
+            </div>
+            <div class="right-panel">
+                <div>
+                    <div class="section-title">Bio</div>
+                    <p class="bio-text">Marta vive con la familia de su hijo. Cocina, ordena y cuida a los nietos todas las tardes, pero esas actividades no se perciben como "tareas domesticas". Se desmotiva cuando cocina algo y lo rehacen, o cuando limpia y le dicen que "asi no era". Su motivacion principal no es competir sino que se note lo que hace.</p>
+                </div>
+                <div class="info-row">
+                    <span class="info-tag">&#128104;&#8205;&#128105;&#8205;&#128103; Vive con hijo, nuera y 2 nietos</span>
+                    <span class="info-tag">&#128241; WhatsApp con dificultad, necesita UI simple</span>
+                </div>
+                <div class="two-col">
+                    <div class="col-section goals-section">
+                        <div class="section-title">Objetivos</div>
+                        <ul>
+                            <li>Que tareas de cuidado (nietos, cocina) cuenten</li>
+                            <li>Sentirse reconocida por su aporte</li>
+                            <li>App facil, letras grandes, flujo minimo</li>
+                            <li>Que alguien le ayude a configurar la app</li>
+                        </ul>
+                    </div>
+                    <div class="col-section frustrations-section">
+                        <div class="section-title">Frustraciones</div>
+                        <ul>
+                            <li>Lo que hace no se considera "tarea"</li>
+                            <li>Cuando rehacen su trabajo se siente desvalorizada</li>
+                            <li>La tecnologia le da inseguridad</li>
+                            <li>No quiere competir, solo quiere visibilidad</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="scenario">
+                    <div class="section-title">Escenario de uso</div>
+                    <p>Su hijo le configura la app con acciones frecuentes en favoritos: "cocinar almuerzo", "cuidar nietos (tarde)". Marta solo toca el boton y confirma. Al final de la semana, el resumen familiar muestra que Marta acumulo muchos puntos por el cuidado. La familia finalmente "ve" su contribucion.</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Persona 9: Administrador -->
+        <div class="persona-card" data-index="8">
+            <div class="left-panel" style="background: #c8d6e5;">
+                <div class="avatar">&#128736;</div>
+                <div class="name">Administrador</div>
+                <div class="role">Admin de la plataforma</div>
+                <div class="quote">"Necesito asegurarme de que la plataforma sea justa y funcione bien para todos."</div>
+                <div class="counter-badge">9 / 9</div>
+            </div>
+            <div class="right-panel">
+                <div>
+                    <div class="section-title">Bio</div>
+                    <p class="bio-text">El administrador gestiona el catalogo global de acciones, modera la plataforma y puede suspender usuarios que abusen del sistema. Necesita estadisticas globales para entender como se usa la plataforma y un registro de auditoria de todas sus acciones. No pertenece a ningun grupo en particular.</p>
+                </div>
+                <div class="info-row">
+                    <span class="info-tag">&#128736; Rol del sistema</span>
+                    <span class="info-tag">&#128187; Acceso completo al panel de admin</span>
+                </div>
+                <div class="two-col">
+                    <div class="col-section goals-section">
+                        <div class="section-title">Objetivos</div>
+                        <ul>
+                            <li>Mantener la plataforma funcional y justa</li>
+                            <li>Gestionar el catalogo global de acciones</li>
+                            <li>Actuar ante reportes de abuso o mal uso</li>
+                            <li>Visibilidad global sin violar privacidad</li>
+                        </ul>
+                    </div>
+                    <div class="col-section frustrations-section">
+                        <div class="section-title">Frustraciones</div>
+                        <ul>
+                            <li>Usuarios que intentan explotar el sistema</li>
+                            <li>Falta de herramientas para detectar patrones de abuso</li>
+                            <li>Equilibrar moderacion con privacidad de los grupos</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="scenario">
+                    <div class="section-title">Escenario de uso</div>
+                    <p>Recibe un reporte de un grupo donde un usuario registra acciones falsas. Revisa las estadisticas globales, confirma el patron anomalo y suspende temporalmente al usuario. La accion queda registrada en el log de auditoria con fecha, motivo y quien la ejecuto.</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="nav-arrows">
+        <button class="nav-btn" id="prev-btn" aria-label="Anterior">&#9664;</button>
+        <div class="dots" id="dots"></div>
+        <button class="nav-btn" id="next-btn" aria-label="Siguiente">&#9654;</button>
+    </div>
+    <p class="keyboard-hint">Usa las flechas del teclado &#8592; &#8594; para navegar</p>
+</div>
+
+<script>
+    const cards = document.querySelectorAll('.persona-card');
+    const dotsContainer = document.getElementById('dots');
+    const total = cards.length;
+    let current = 0;
+
+    cards.forEach((_, i) => {
+        const dot = document.createElement('div');
+        dot.className = 'dot' + (i === 0 ? ' active' : '');
+        dot.addEventListener('click', () => goTo(i));
+        dotsContainer.appendChild(dot);
+    });
+
+    function goTo(index) {
+        cards[current].classList.remove('active');
+        dotsContainer.children[current].classList.remove('active');
+        current = (index + total) % total;
+        cards[current].classList.add('active');
+        dotsContainer.children[current].classList.add('active');
+    }
+
+    document.getElementById('prev-btn').addEventListener('click', () => goTo(current - 1));
+    document.getElementById('next-btn').addEventListener('click', () => goTo(current + 1));
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowLeft') goTo(current - 1);
+        if (e.key === 'ArrowRight') goTo(current + 1);
+    });
+</script>
+
+</body>
+</html>
